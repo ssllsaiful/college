@@ -1,0 +1,328 @@
+{
+  "subjects": [
+    {
+      "name": "Bangla 1st Paper",
+      "code": "101",
+      "group": "science",
+      "category": "compulsory"
+    },
+    {
+      "name": "Bangla 2nd Paper",
+      "code": "102",
+      "group": "science",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 1st Paper",
+      "code": "107",
+      "group": "science",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 2nd Paper",
+      "code": "108",
+      "group": "science",
+      "category": "compulsory"
+    },
+    {
+      "name": "ICT",
+      "code": "275",
+      "group": "science",
+      "category": "compulsory"
+    },
+    {
+      "name": "Physics 1st Paper",
+      "code": "174",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Physics 2nd Paper",
+      "code": "175",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Chemistry 1st Paper",
+      "code": "176",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Chemistry 2nd Paper",
+      "code": "177",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Higher Mathematics 1st Paper",
+      "code": "265",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Higher Mathematics 2nd Paper",
+      "code": "266",
+      "group": "science",
+      "category": "group"
+    },
+    {
+      "name": "Biology 1st Paper",
+      "code": "178",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Biology 2nd Paper",
+      "code": "179",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Statistics 1st Paper",
+      "code": "129",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Statistics 2nd Paper",
+      "code": "130",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Geography 1st Paper",
+      "code": "125",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Geography 2nd Paper",
+      "code": "126",
+      "group": "science",
+      "category": "optional"
+    },
+    {
+      "name": "Bangla 1st Paper",
+      "code": "101-B",
+      "group": "business",
+      "category": "compulsory"
+    },
+    {
+      "name": "Bangla 2nd Paper",
+      "code": "102-B",
+      "group": "business",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 1st Paper",
+      "code": "107-B",
+      "group": "business",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 2nd Paper",
+      "code": "108-B",
+      "group": "business",
+      "category": "compulsory"
+    },
+    {
+      "name": "ICT",
+      "code": "275-B",
+      "group": "business",
+      "category": "compulsory"
+    },
+    {
+      "name": "General Math",
+      "code": "109",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Business Organization & Management",
+      "code": "277",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Accounting 1st Paper",
+      "code": "253",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Accounting 2nd Paper",
+      "code": "254",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Finance, Banking & Insurance",
+      "code": "292",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Production Management & Marketing",
+      "code": "286",
+      "group": "business",
+      "category": "group"
+    },
+    {
+      "name": "Bangla 1st Paper",
+      "code": "101-H",
+      "group": "humanities",
+      "category": "compulsory"
+    },
+    {
+      "name": "Bangla 2nd Paper",
+      "code": "102-H",
+      "group": "humanities",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 1st Paper",
+      "code": "107-H",
+      "group": "humanities",
+      "category": "compulsory"
+    },
+    {
+      "name": "English 2nd Paper",
+      "code": "108-H",
+      "group": "humanities",
+      "category": "compulsory"
+    },
+    {
+      "name": "ICT",
+      "code": "275-H",
+      "group": "humanities",
+      "category": "compulsory"
+    },
+    {
+      "name": "Economics 1st Paper",
+      "code": "109-H",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Economics 2nd Paper",
+      "code": "110",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Civics 1st Paper",
+      "code": "269",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Civics 2nd Paper",
+      "code": "270",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "History 1st Paper",
+      "code": "304",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "History 2nd Paper",
+      "code": "305",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Geography 1st Paper",
+      "code": "125-H",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Geography 2nd Paper",
+      "code": "126-H",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Social Work 1st Paper",
+      "code": "271",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Social Work 2nd Paper",
+      "code": "272",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Islamic History 1st Paper",
+      "code": "267",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Islamic History 2nd Paper",
+      "code": "268",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Logic 1st Paper",
+      "code": "121",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Logic 2nd Paper",
+      "code": "122",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Psychology 1st Paper",
+      "code": "123",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Psychology 2nd Paper",
+      "code": "124",
+      "group": "humanities",
+      "category": "group"
+    },
+    {
+      "name": "Islamic Studies 1st Paper",
+      "code": "249",
+      "group": "religion",
+      "category": "compulsory"
+    },
+    {
+      "name": "Islamic Studies 2nd Paper",
+      "code": "250",
+      "group": "religion",
+      "category": "compulsory"
+    },
+    {
+      "name": "Hindu Religion & Moral Education",
+      "code": "245",
+      "group": "religion",
+      "category": "compulsory"
+    },
+    {
+      "name": "Buddhist Religion & Moral Education",
+      "code": "247",
+      "group": "religion",
+      "category": "compulsory"
+    },
+    {
+      "name": "Christian Religion & Moral Education",
+      "code": "246",
+      "group": "religion",
+      "category": "compulsory"
+    }
+  ]
+}

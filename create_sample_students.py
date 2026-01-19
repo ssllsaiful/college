@@ -8,7 +8,7 @@ sys.path.insert(0, '/home/saifulislam/saiful/college')
 django.setup()
 
 from academics.models import Class, Session, Subject
-from students.models import Student, StudentSubject
+from students.models import Student
 
 # Create a sample class if it doesn't exist
 class_obj, _ = Class.objects.get_or_create(
@@ -28,18 +28,18 @@ print(f"Session: {session.name}\n")
 # Sample students
 students_data = [
     {
-        'name': 'Ahmed Hassan',
-        'roll_number': 'XI-A-001',
-        'email': 'ahmed@example.com',
-        'subjects': ['101', '107', '174', '175', '275'],  # Bangla, English, Physics 1&2, ICT
-        'group': 'science'
+        'name': 'Fatima Khan',
+        'roll_number': '20356',
+        'email': 'fatima@example.com',
+        'group': 'science',
+        'subjects': ['101', '107', '176', '177', '275'],  # Bangla, English, Chemistry 1&2, ICT
     },
     {
-        'name': 'Fatima Khan',
-        'roll_number': 'XI-A-002',
-        'email': 'fatima@example.com',
-        'subjects': ['101', '107', '176', '177', '275'],  # Bangla, English, Chemistry 1&2, ICT
-        'group': 'science'
+        'name': 'Ahmed Hassan',
+        'roll_number': '20365',
+        'email': 'ahmed@example.com',
+        'group': 'science',
+        'subjects': ['101', '107', '174', '175', '265'],  # Bangla, English, Physics 1&2, Higher Math 1
     },
 ]
 
@@ -51,6 +51,7 @@ for student_data in students_data:
             'email': student_data['email'],
             'class_name': class_obj,
             'session': session,
+            'group': student_data['group'],
         }
     )
     
@@ -63,24 +64,19 @@ for student_data in students_data:
     for subject_code in student_data['subjects']:
         try:
             subject = Subject.objects.get(code=subject_code)
-            student_subject, created = StudentSubject.objects.get_or_create(
-                student=student,
-                subject=subject,
-                defaults={'group': student_data['group']}
-            )
-            if created:
-                print(f"  → Added subject: {subject.name} ({subject.code})")
+            student.subjects.add(subject)
+            print(f"  → Added subject: {subject.name} ({subject.code})")
         except Subject.DoesNotExist:
             print(f"  ✗ Subject not found: {subject_code}")
 
 print(f"\n{'='*60}")
-print("Summary:")
+print("Summary - Student List View:")
 print(f"{'='*60}")
 for student in Student.objects.all():
-    subjects = student.student_subjects.all()
-    print(f"\n{student.name} ({student.roll_number})")
-    print(f"  Class: {student.class_name.name}")
-    print(f"  Session: {student.session.name}")
-    print(f"  Subjects ({subjects.count()}):")
-    for ss in subjects:
-        print(f"    - {ss.subject.name} ({ss.subject.code}) [{ss.group}]")
+    subjects = student.subjects.all()
+    print(f"\nName: {student.name}")
+    print(f"Roll Number: {student.roll_number}")
+    print(f"Group: {student.get_group_display() or '-'}")
+    print(f"Class: {student.class_name.name}")
+    print(f"Subjects: {student.get_subjects_display()}")
+

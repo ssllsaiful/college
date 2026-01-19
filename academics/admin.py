@@ -3,10 +3,19 @@ from .models import Session, Class, Subject
 
 @admin.register(Session)
 class SessionAdmin(admin.ModelAdmin):
-    list_display = ('name', 'start_year', 'end_year', 'created_at')
+    list_display = ('name', 'created_at')
     search_fields = ('name',)
-    ordering = ('-start_year',)
+    ordering = ('-name',)
     readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('Session Information', {
+            'fields': ('name',)
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
 
 @admin.register(Class)
 class ClassAdmin(admin.ModelAdmin):

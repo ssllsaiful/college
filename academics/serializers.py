@@ -1,6 +1,11 @@
 from rest_framework import serializers
 from .models import Subject, Class, Session
 
+class SessionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Session
+        fields = ['id', 'name', 'created_at']
+
 class SubjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Subject

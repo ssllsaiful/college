@@ -3,13 +3,13 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import Session, Class, Subject
-from .serializers import SubjectSerializer, BulkSubjectImportSerializer
+from .serializers import SessionSerializer, SubjectSerializer, BulkSubjectImportSerializer
 
 class SessionListView(APIView):
     def get(self, request):
         sessions = Session.objects.all()
-        data = [{'id': s.id, 'name': s.name, 'start_year': s.start_year, 'end_year': s.end_year} for s in sessions]
-        return Response(data)
+        serializer = SessionSerializer(sessions, many=True)
+        return Response(serializer.data)
 
 class ClassListView(APIView):
     def get(self, request):

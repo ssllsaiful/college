@@ -44,3 +44,43 @@ class StudentSubjectByStudentView(APIView):
         except Student.DoesNotExist:
             return Response({'error': 'Student not found'}, status=404)
 
+class StudentSubjectReportView(APIView):
+    """
+    Returns students with all their subjects in a single row format
+    Format: name, roll_number, group, subjects (comma-separated)
+    """
+    def get(self, request):
+        students = Student.objects.prefetch_related('student_subjects__subject').all()
+        data = []
+        
+        for student in students:
+            student_subjects = student.student_subjects.all()
+            
+            # Get all groups
+            groups = list(set([ss.group for ss in student_subjects if ss.group]))
+            
+            # Get all subjects
+            subject_list = [ss.subject.name for ss in student_subjects]
+            
+            # Get subject codes
+            subject_codes = [ss.subject.code for ss in student_subjects]
+            
+            data.append({
+                'id': student.id,
+                'name': student.name,
+                'roll_number': student.roll_number,
+                'class_name': student.class_name.name,
+                'session': student.session.name,
+                'group': ', '.join(groups) if groups else '-',
+                'subjects': subject_list,
+                'subject_codes': subject_codes,
+                'total_subjects': len(subject_list),
+                'email': student.email,
+                'phone': student.phone,
+            })
+        
+        return Response({
+            'count': len(data),
+            'results': data
+        })
+

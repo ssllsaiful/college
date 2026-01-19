@@ -26,8 +26,20 @@ class ClassAdmin(admin.ModelAdmin):
 
 @admin.register(Subject)
 class SubjectAdmin(admin.ModelAdmin):
-    list_display = ('name', 'code', 'class_name', 'created_at')
+    list_display = ('name', 'code', 'group', 'category', 'created_at')
     search_fields = ('name', 'code')
-    list_filter = ('class_name',)
-    ordering = ('name',)
+    list_filter = ('group', 'category')
+    ordering = ('group', 'category', 'name')
     readonly_fields = ('created_at', 'updated_at')
+    fieldsets = (
+        ('Subject Information', {
+            'fields': ('name', 'code')
+        }),
+        ('Classification', {
+            'fields': ('group', 'category', 'class_name')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )

@@ -29,9 +29,15 @@ class Student(models.Model):
         return f"{self.name} - {self.roll_number}"
     
     def get_subjects_display(self):
-        """Return all subject names as comma-separated string"""
-        return ', '.join([s.name for s in self.subjects.all()])
+        """Return all subject names with || separator"""
+        subjects = self.subjects.all()
+        if not subjects:
+            return '-'
+        return ' || '.join([s.name for s in subjects])
     
     def get_subject_codes_display(self):
-        """Return all subject codes as comma-separated string"""
-        return ', '.join([s.code for s in self.subjects.all()])
+        """Return all subject codes with || separator"""
+        subjects = self.subjects.all()
+        if not subjects:
+            return '-'
+        return ' || '.join([s.code for s in subjects])

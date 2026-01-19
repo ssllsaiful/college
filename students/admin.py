@@ -25,13 +25,13 @@ class StudentAdmin(admin.ModelAdmin):
     )
     
     def get_subjects_display(self, obj):
-        """Display all subjects as comma-separated list"""
+        """Display all subjects with || separator"""
         subjects = obj.subjects.all()
         if subjects:
             subject_names = [s.name for s in subjects]
             return format_html(
-                '<div style="max-width: 300px; word-wrap: break-word;">{}</div>',
-                ', '.join(subject_names)
+                '<div style="max-width: 400px; word-wrap: break-word; white-space: normal;">{}</div>',
+                ' || '.join(subject_names)
             )
         return '-'
     get_subjects_display.short_description = 'Subjects'

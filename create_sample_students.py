@@ -32,14 +32,14 @@ students_data = [
         'roll_number': '20356',
         'email': 'fatima@example.com',
         'group': 'science',
-        'subjects': ['101', '107', '176', '177', '275'],  # Bangla, English, Chemistry 1&2, ICT
+        'subjects': ['101', '107', '176', '177', '275', 'CHEMISTRY'],  # Bangla, English, Chemistry 1&2, ICT, Chemistry
     },
     {
         'name': 'Ahmed Hassan',
         'roll_number': '20365',
         'email': 'ahmed@example.com',
         'group': 'science',
-        'subjects': ['101', '107', '174', '175', '265'],  # Bangla, English, Physics 1&2, Higher Math 1
+        'subjects': ['101', '107', '174', '175', '265', 'PHYSICS'],  # Bangla, English, Physics 1&2, Higher Math 1, Physics
     },
 ]
 

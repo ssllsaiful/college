@@ -22,7 +22,7 @@ class StudentDetailView(APIView):
 class StudentReportView(APIView):
     """
     Returns students with all their subjects in a single row format
-    Format: name, roll_number, group, subjects (comma-separated)
+    Format: name, roll_number, group, subjects (|| separated)
     """
     def get(self, request):
         students = Student.objects.prefetch_related('subjects').all()
@@ -33,6 +33,10 @@ class StudentReportView(APIView):
             subject_list = [s.name for s in subjects]
             subject_codes = [s.code for s in subjects]
             
+            # Join with || separator
+            subjects_display = ' || '.join(subject_list) if subject_list else '-'
+            codes_display = ' || '.join(subject_codes) if subject_codes else '-'
+            
             data.append({
                 'id': student.id,
                 'name': student.name,
@@ -41,7 +45,9 @@ class StudentReportView(APIView):
                 'class_name': student.class_name.name,
                 'session': student.session.name,
                 'subjects': subject_list,
+                'subjects_display': subjects_display,
                 'subject_codes': subject_codes,
+                'codes_display': codes_display,
                 'total_subjects': len(subject_list),
                 'email': student.email,
                 'phone': student.phone,

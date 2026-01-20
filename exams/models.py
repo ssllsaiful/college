@@ -5,16 +5,27 @@ from django.db import models
 from academics.models import Subject, Class, Session
 from students.models import Student
 
-class Exam(models.Model):
-    EXAM_TYPE_CHOICES = [
-        ('midterm', 'Mid Term'),
-        ('final', 'Final'),
-        ('quiz', 'Quiz'),
-        ('assignment', 'Assignment'),
-    ]
+
+class ExamType(models.Model):
+    """Flexible exam type model - add/remove exam names as needed"""
+    name = models.CharField(max_length=100, unique=True, help_text="Exam name (e.g., CT-Exam, Mid-Term, Half Yearly, Test, Pre-test, Year Final)")
+    description = models.TextField(blank=True, null=True, help_text="Description of this exam type")
+    is_active = models.BooleanField(default=True, help_text="Enable/disable this exam type")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
+    class Meta:
+        ordering = ['name']
+        verbose_name = 'Exam Type'
+        verbose_name_plural = 'Exam Types'
+    
+    def __str__(self):
+        return self.name
+
+
+class Exam(models.Model):
     name = models.CharField(max_length=100)
-    exam_type = models.CharField(max_length=50, choices=EXAM_TYPE_CHOICES)
+    exam_type = models.ForeignKey(ExamType, on_delete=models.CASCADE, related_name='exams', help_text="Select exam type")
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exams')
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='exams')
     session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='exams')

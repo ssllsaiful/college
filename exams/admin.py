@@ -1,6 +1,43 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Exam, Mark, ExamMark
+from .models import Exam, Mark, ExamMark, ExamType
+
+@admin.register(ExamType)
+class ExamTypeAdmin(admin.ModelAdmin):
+    """Manage exam types - add/remove as needed"""
+    list_display = ('name', 'description_short', 'is_active', 'get_active_status')
+    search_fields = ('name', 'description')
+    list_filter = ('is_active', 'created_at')
+    ordering = ('name',)
+    readonly_fields = ('created_at', 'updated_at')
+    
+    fieldsets = (
+        ('Exam Type Info', {
+            'fields': ('name', 'description', 'is_active')
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at')
+        }),
+    )
+    
+    def description_short(self, obj):
+        """Show truncated description"""
+        if obj.description:
+            return obj.description[:50] + '...' if len(obj.description) > 50 else obj.description
+        return '-'
+    description_short.short_description = 'Description'
+    
+    def get_active_status(self, obj):
+        """Display active status with color"""
+        if obj.is_active:
+            return format_html(
+                '<span style="background-color: #28a745; color: white; padding: 3px 10px; border-radius: 3px;">Active</span>'
+            )
+        return format_html(
+            '<span style="background-color: #dc3545; color: white; padding: 3px 10px; border-radius: 3px;">Inactive</span>'
+        )
+    get_active_status.short_description = 'Status'
+
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
@@ -76,9 +113,10 @@ class ExamMarkAdmin(admin.ModelAdmin):
     
     def get_readonly_fields(self, request, obj=None):
         """Make total_marks always read-only since it's auto-calculated"""
-        if obj:
-            return self.readonly_fields
-        return self.readonly_fields@admin.register(Mark)
+        return self.readonly_fields
+
+
+@admin.register(Mark)
 class MarkAdmin(admin.ModelAdmin):
     list_display = ('student', 'exam', 'marks_obtained', 'grade')
     search_fields = ('student__name', 'exam__name')

@@ -4,12 +4,15 @@ from .models import Student
 
 @admin.register(Student)
 class StudentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'roll_number', 'group', 'get_subjects_display', 'class_name', 'session')
-    search_fields = ('name', 'roll_number', 'email')
+    list_display = ('name', 'roll_number', 'get_user', 'group', 'get_subjects_display', 'class_name', 'session')
+    search_fields = ('name', 'roll_number', 'email', 'user__username')
     list_filter = ('class_name', 'session', 'group')
     ordering = ('roll_number',)
     readonly_fields = ('created_at', 'updated_at', 'get_all_subjects_display')
     fieldsets = (
+        ('User Account', {
+            'fields': ('user',)
+        }),
         ('Basic Info', {
             'fields': ('name', 'roll_number', 'email')
         }),
@@ -17,12 +20,19 @@ class StudentAdmin(admin.ModelAdmin):
             'fields': ('class_name', 'session', 'group', 'subjects', 'get_all_subjects_display')
         }),
         ('Personal Info', {
-            'fields': ('address', 'date_of_birth')
+            'fields': ('address', 'date_of_birth', 'phone')
         }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at')
         }),
     )
+    
+    def get_user(self, obj):
+        """Display linked user account"""
+        if obj.user:
+            return f"{obj.user.username} ({obj.user.get_role_display()})"
+        return "-"
+    get_user.short_description = 'User Account'
     
     def get_subjects_display(self, obj):
         """Display all subjects with || separator"""

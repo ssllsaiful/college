@@ -1,5 +1,6 @@
 from django.db import models
 from academics.models import Session, Class, Subject
+from accounts.models import User
 
 class Student(models.Model):
     GROUP_CHOICES = [
@@ -8,6 +9,7 @@ class Student(models.Model):
         ('humanities', 'Humanities'),
     ]
     
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='student_profile', null=True, blank=True)
     name = models.CharField(max_length=100)
     roll_number = models.CharField(max_length=50, unique=True)
     class_name = models.ForeignKey(Class, on_delete=models.CASCADE, related_name='students')

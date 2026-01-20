@@ -61,3 +61,54 @@ class Mark(models.Model):
     class Meta:
         unique_together = ('exam', 'student')
         ordering = ['student__roll_number']
+
+
+class ExamMark(models.Model):
+    """Model to track CT marks with multiple components and attendance"""
+    EXAM_NAME_CHOICES = [
+        ('ct_exam', 'CT-Exam'),
+        ('midterm', 'Mid-Term'),
+        ('half_yearly', 'Half Yearly'),
+        ('test', 'Test'),
+        ('pretest', 'Pre-test'),
+        ('year_final', 'Year Final'),
+    ]
+    
+    # Basic information
+    exam_name = models.CharField(max_length=20, choices=EXAM_NAME_CHOICES)
+    student = models.ForeignKey(Student, on_delete=models.CASCADE, related_name='exam_marks')
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='exam_marks')
+    session = models.ForeignKey(Session, on_delete=models.CASCADE, related_name='exam_marks')
+    
+    # Mark components (CQ = Constructed Question, MCT = Multiple Choice Test, LAB = Laboratory)
+    cq_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Constructed Question marks")
+    mct_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Multiple Choice Test marks")
+    lab_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Laboratory marks")
+    
+    # Attendance tracking
+    total_class = models.IntegerField(default=10, help_text="Total classes in the course")
+    present = models.IntegerField(default=0, help_text="Classes attended")
+    absent = models.IntegerField(default=0, help_text="Classes missed")
+    
+    # Total marks (calculated)
+    total_marks = models.DecimalField(max_digits=5, decimal_places=2, blank=True, null=True, help_text="Total marks obtained")
+    
+    # Metadata
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.student.name} - {self.get_exam_name_display()} - {self.subject.name}"
+    
+    def save(self, *args, **kwargs):
+        """Calculate total marks from components"""
+        marks_list = [m for m in [self.cq_marks, self.mct_marks, self.lab_marks] if m is not None]
+        if marks_list:
+            self.total_marks = sum(marks_list)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        unique_together = ('exam_name', 'student', 'subject', 'session')
+        ordering = ['student__roll_number', 'subject__name']
+        verbose_name = 'Exam Mark'
+        verbose_name_plural = 'Exam Marks'

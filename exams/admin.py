@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import Exam, Mark, ExamMark, ExamType
+from .models import ExamType, ExamMark
 
 @admin.register(ExamType)
 class ExamTypeAdmin(admin.ModelAdmin):
@@ -39,54 +39,44 @@ class ExamTypeAdmin(admin.ModelAdmin):
     get_active_status.short_description = 'Status'
 
 
-@admin.register(Exam)
-class ExamAdmin(admin.ModelAdmin):
-    list_display = ('name', 'exam_type', 'subject', 'class_name', 'exam_date', 'total_marks')
-    search_fields = ('name', 'subject__name')
-    list_filter = ('exam_type', 'subject', 'class_name', 'session')
-    ordering = ('-exam_date',)
-    readonly_fields = ('created_at', 'updated_at')
-    fieldsets = (
-        ('Exam Info', {
-            'fields': ('name', 'exam_type', 'exam_date')
-        }),
-        ('Academic Info', {
-            'fields': ('subject', 'class_name', 'session', 'total_marks')
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at')
-        }),
-    )
-
-
 @admin.register(ExamMark)
 class ExamMarkAdmin(admin.ModelAdmin):
-    """Admin interface for CT marks entry with tabular layout"""
-    list_display = ('get_exam_display', 'student', 'subject', 'cq_marks', 'mct_marks', 'lab_marks', 'total_marks', 'attendance_display')
-    search_fields = ('student__name', 'student__roll_number', 'subject__name', 'exam_name')
-    list_filter = ('exam_name', 'subject', 'session', 'student__group')
-    ordering = ('exam_name', 'student__roll_number')
-    readonly_fields = ('total_marks', 'created_at', 'updated_at')
+    """
+    Unified admin interface for all exam marks:
+    - Flexible exam types (from ExamType)
+    - Multiple mark components (CQ, MCT, LAB)
+    - Attendance tracking
+    - Auto-calculated grades
+    """
+    list_display = ('get_exam_type', 'exam_date', 'student', 'subject', 'get_marks_display', 'grade', 'attendance_display')
+    search_fields = ('student__name', 'student__roll_number', 'subject__name', 'exam_type__name')
+    list_filter = ('exam_type', 'subject', 'session', 'student__group', 'grade')
+    ordering = ('-exam_date', 'student__roll_number')
+    readonly_fields = ('total_marks', 'grade', 'created_at', 'updated_at')
+    date_hierarchy = 'exam_date'
     
     fieldsets = (
-        ('Exam & Student Info', {
-            'fields': ('exam_name', 'student', 'subject', 'session')
+        ('Exam Information', {
+            'fields': ('exam_type', 'exam_date', 'student', 'subject', 'session')
         }),
         ('Mark Components', {
-            'fields': ('cq_marks', 'mct_marks', 'lab_marks', 'total_marks'),
-            'description': 'CQ = Constructed Question, MCT = Multiple Choice Test, LAB = Laboratory'
+            'fields': ('cq_marks', 'mct_marks', 'lab_marks', 'total_marks', 'grade'),
+            'description': 'CQ = Constructed Question, MCT = Multiple Choice Test, LAB = Laboratory. Total and Grade are auto-calculated.'
         }),
         ('Attendance Tracking', {
             'fields': ('total_class', 'present', 'absent'),
             'description': 'Total Classes: Total classes in the course, Present: Classes attended, Absent: Classes missed'
         }),
+        ('Additional Information', {
+            'fields': ('remarks',)
+        }),
         ('Timestamps', {
             'fields': ('created_at', 'updated_at')
         }),
     )
     
-    def get_exam_display(self, obj):
-        """Display exam name with color coding"""
+    def get_exam_type(self, obj):
+        """Display exam type with color coding"""
         colors = {
             'ct_exam': '#0066cc',
             'midterm': '#ff6600',
@@ -95,42 +85,40 @@ class ExamMarkAdmin(admin.ModelAdmin):
             'pretest': '#9900cc',
             'year_final': '#ff0000',
         }
-        color = colors.get(obj.exam_name, '#000000')
+        # Get color from exam type or use default
+        color = colors.get(obj.exam_type.name.lower().replace(' ', '_').replace('-', '_'), '#666666')
         return format_html(
             '<span style="background-color: {}; color: white; padding: 3px 10px; border-radius: 3px;">{}</span>',
             color,
-            obj.get_exam_name_display()
+            obj.exam_type.name
         )
-    get_exam_display.short_description = 'Exam Name'
+    get_exam_type.short_description = 'Exam Type'
+    
+    def get_marks_display(self, obj):
+        """Display mark components compactly"""
+        parts = []
+        if obj.cq_marks is not None:
+            parts.append(f"CQ:{obj.cq_marks}")
+        if obj.mct_marks is not None:
+            parts.append(f"MCT:{obj.mct_marks}")
+        if obj.lab_marks is not None:
+            parts.append(f"LAB:{obj.lab_marks}")
+        return " | ".join(parts) if parts else "-"
+    get_marks_display.short_description = 'Marks (CQ|MCT|LAB)'
     
     def attendance_display(self, obj):
-        """Display attendance summary"""
+        """Display attendance summary with percentage"""
         if obj.total_class > 0:
             attendance_pct = (obj.present / obj.total_class) * 100
-            return f"{obj.present}/{obj.total_class} ({attendance_pct:.0f}%)"
+            return format_html(
+                '<span>{}/{} ({:.0f}%)</span>',
+                obj.present,
+                obj.total_class,
+                attendance_pct
+            )
         return "-"
     attendance_display.short_description = 'Attendance'
     
     def get_readonly_fields(self, request, obj=None):
-        """Make total_marks always read-only since it's auto-calculated"""
+        """Make calculated fields always read-only"""
         return self.readonly_fields
-
-
-@admin.register(Mark)
-class MarkAdmin(admin.ModelAdmin):
-    list_display = ('student', 'exam', 'marks_obtained', 'grade')
-    search_fields = ('student__name', 'exam__name')
-    list_filter = ('grade', 'exam', 'created_at')
-    ordering = ('-exam__exam_date',)
-    readonly_fields = ('created_at', 'updated_at')
-    fieldsets = (
-        ('Mark Info', {
-            'fields': ('student', 'exam', 'marks_obtained', 'grade')
-        }),
-        ('Additional Info', {
-            'fields': ('remarks',)
-        }),
-        ('Timestamps', {
-            'fields': ('created_at', 'updated_at')
-        }),
-    )

@@ -5,27 +5,13 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
-from .models import Exam, Mark, ExamMark
+from .models import ExamMark, ExamType
 from .serializers import (
-    ExamListSerializer, ExamMarkListSerializer, ExamMarkDetailSerializer,
-    ExamMarkCreateUpdateSerializer, StudentSubjectListSerializer
+    ExamMarkListSerializer, ExamMarkDetailSerializer,
+    ExamMarkCreateUpdateSerializer
 )
 from students.models import Student
 from academics.models import Subject, Session
-
-
-class ExamListView(APIView):
-    def get(self, request):
-        exams = Exam.objects.all()
-        data = [{'id': e.id, 'name': e.name, 'exam_type': e.exam_type, 'subject': e.subject.name, 'exam_date': e.exam_date, 'total_marks': e.total_marks} for e in exams]
-        return Response(data)
-
-
-class MarkListView(APIView):
-    def get(self, request):
-        marks = Mark.objects.all()
-        data = [{'id': m.id, 'student': m.student.name, 'exam': m.exam.name, 'marks_obtained': m.marks_obtained, 'grade': m.grade, 'remarks': m.remarks} for m in marks]
-        return Response(data)
 
 
 class ExamMarkViewSet(viewsets.ModelViewSet):
@@ -46,10 +32,10 @@ class ExamMarkViewSet(viewsets.ModelViewSet):
         """Filter exam marks based on query parameters"""
         queryset = super().get_queryset()
         
-        # Filter by exam name
-        exam_name = self.request.query_params.get('exam_name', None)
-        if exam_name:
-            queryset = queryset.filter(exam_name=exam_name)
+        # Filter by exam type
+        exam_type_id = self.request.query_params.get('exam_type', None)
+        if exam_type_id:
+            queryset = queryset.filter(exam_type_id=exam_type_id)
         
         # Filter by subject
         subject_id = self.request.query_params.get('subject', None)
@@ -71,38 +57,46 @@ class ExamMarkViewSet(viewsets.ModelViewSet):
         if student_id:
             queryset = queryset.filter(student_id=student_id)
         
-        return queryset.order_by('exam_name', 'student__roll_number')
+        # Filter by date range
+        start_date = self.request.query_params.get('start_date', None)
+        end_date = self.request.query_params.get('end_date', None)
+        if start_date:
+            queryset = queryset.filter(exam_date__gte=start_date)
+        if end_date:
+            queryset = queryset.filter(exam_date__lte=end_date)
+        
+        return queryset.order_by('-exam_date', 'student__roll_number')
     
     @action(detail=False, methods=['get'])
-    def by_exam(self, request):
-        """Get all exam marks for a specific exam"""
-        exam_name = request.query_params.get('exam_name', None)
-        if not exam_name:
+    def by_exam_type(self, request):
+        """Get all exam marks for a specific exam type"""
+        exam_type_id = request.query_params.get('exam_type_id', None)
+        if not exam_type_id:
             return Response(
-                {'error': 'exam_name parameter is required'},
+                {'error': 'exam_type_id parameter is required'},
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        marks = self.get_queryset().filter(exam_name=exam_name)
+        marks = self.get_queryset().filter(exam_type_id=exam_type_id)
         serializer = self.get_serializer(marks, many=True)
+        
+        try:
+            exam_type = ExamType.objects.get(id=exam_type_id)
+            exam_name = exam_type.name
+        except ExamType.DoesNotExist:
+            exam_name = 'Unknown'
+        
         return Response({
-            'exam_name': exam_name,
+            'exam_type': exam_name,
             'count': marks.count(),
             'marks': serializer.data
         })
     
     @action(detail=False, methods=['get'])
-    def exam_names(self, request):
-        """Get all available exam names"""
-        exam_choices = [
-            {'value': 'ct_exam', 'label': 'CT-Exam'},
-            {'value': 'midterm', 'label': 'Mid-Term'},
-            {'value': 'half_yearly', 'label': 'Half Yearly'},
-            {'value': 'test', 'label': 'Test'},
-            {'value': 'pretest', 'label': 'Pre-test'},
-            {'value': 'year_final', 'label': 'Year Final'},
-        ]
-        return Response(exam_choices)
+    def exam_types(self, request):
+        """Get all available exam types"""
+        exam_types = ExamType.objects.filter(is_active=True).values('id', 'name', 'description')
+        return Response(list(exam_types))
     
     @action(detail=False, methods=['post'])
     def bulk_update(self, request):
@@ -154,14 +148,14 @@ class ExamMarkViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def report(self, request):
         """Generate report for exam marks"""
-        exam_name = request.query_params.get('exam_name', None)
+        exam_type_id = request.query_params.get('exam_type_id', None)
         subject_id = request.query_params.get('subject', None)
         session_id = request.query_params.get('session', None)
         
         marks = self.get_queryset()
         
-        if exam_name:
-            marks = marks.filter(exam_name=exam_name)
+        if exam_type_id:
+            marks = marks.filter(exam_type_id=exam_type_id)
         if subject_id:
             marks = marks.filter(subject_id=subject_id)
         if session_id:
@@ -176,9 +170,12 @@ class ExamMarkViewSet(viewsets.ModelViewSet):
             avg=models.Avg(models.F('present') * 100 / models.F('total_class'), output_field=models.FloatField())
         )['avg']
         
+        # Get grade distribution
+        grade_counts = marks.values('grade').annotate(count=models.Count('grade')).order_by('grade')
+        
         return Response({
             'filters': {
-                'exam_name': exam_name,
+                'exam_type_id': exam_type_id,
                 'subject_id': subject_id,
                 'session_id': session_id,
             },
@@ -187,5 +184,6 @@ class ExamMarkViewSet(viewsets.ModelViewSet):
                 'average_marks': round(avg_total_marks, 2) if avg_total_marks else 0,
                 'average_attendance': round(avg_attendance, 2) if avg_attendance else 0,
             },
+            'grade_distribution': list(grade_counts),
             'marks': ExamMarkListSerializer(marks, many=True).data
         })

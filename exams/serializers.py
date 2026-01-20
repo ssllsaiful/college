@@ -1,12 +1,12 @@
 from rest_framework import serializers
-from .models import ExamMark, Exam, Mark
+from .models import ExamMark, ExamType
 from students.models import Student
 from academics.models import Subject, Session
 
 
 class ExamMarkListSerializer(serializers.ModelSerializer):
     """Serializer for listing exam marks"""
-    exam_name_display = serializers.CharField(source='get_exam_name_display', read_only=True)
+    exam_type_name = serializers.CharField(source='exam_type.name', read_only=True)
     student_name = serializers.CharField(source='student.name', read_only=True)
     student_roll = serializers.CharField(source='student.roll_number', read_only=True)
     student_group = serializers.CharField(source='student.get_group_display', read_only=True)
@@ -17,9 +17,9 @@ class ExamMarkListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamMark
         fields = [
-            'id', 'exam_name', 'exam_name_display', 'student', 'student_name', 
+            'id', 'exam_type', 'exam_type_name', 'exam_date', 'student', 'student_name', 
             'student_roll', 'student_group', 'subject', 'subject_name', 'subject_code',
-            'cq_marks', 'mct_marks', 'lab_marks', 'total_marks',
+            'cq_marks', 'mct_marks', 'lab_marks', 'total_marks', 'grade',
             'total_class', 'present', 'absent', 'attendance_percentage', 'session'
         ]
     
@@ -32,7 +32,7 @@ class ExamMarkListSerializer(serializers.ModelSerializer):
 
 class ExamMarkDetailSerializer(serializers.ModelSerializer):
     """Detailed serializer for exam marks with all information"""
-    exam_name_display = serializers.CharField(source='get_exam_name_display', read_only=True)
+    exam_type_name = serializers.CharField(source='exam_type.name', read_only=True)
     student_details = serializers.SerializerMethodField()
     subject_details = serializers.SerializerMethodField()
     attendance_summary = serializers.SerializerMethodField()
@@ -41,13 +41,13 @@ class ExamMarkDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = ExamMark
         fields = [
-            'id', 'exam_name', 'exam_name_display', 'student', 'student_details',
+            'id', 'exam_type', 'exam_type_name', 'exam_date', 'student', 'student_details',
             'subject', 'subject_details', 'session',
-            'cq_marks', 'mct_marks', 'lab_marks', 'total_marks',
+            'cq_marks', 'mct_marks', 'lab_marks', 'total_marks', 'grade',
             'marks_summary', 'total_class', 'present', 'absent', 'attendance_summary',
-            'created_at', 'updated_at'
+            'remarks', 'created_at', 'updated_at'
         ]
-        read_only_fields = ['total_marks', 'created_at', 'updated_at']
+        read_only_fields = ['total_marks', 'grade', 'created_at', 'updated_at']
     
     def get_student_details(self, obj):
         """Return detailed student information"""
@@ -93,32 +93,15 @@ class ExamMarkDetailSerializer(serializers.ModelSerializer):
         }
 
 
-class ExamListSerializer(serializers.ModelSerializer):
-    """Serializer for listing exam names to filter marks"""
-    class Meta:
-        model = Exam
-        fields = ['id', 'name', 'exam_type']
-
-
-class StudentSubjectListSerializer(serializers.ModelSerializer):
-    """Serializer for getting student's subjects"""
-    subject_name = serializers.CharField(source='name', read_only=True)
-    subject_code = serializers.CharField(source='code', read_only=True)
-    
-    class Meta:
-        model = Subject
-        fields = ['id', 'subject_name', 'subject_code', 'code', 'name']
-
-
 class ExamMarkCreateUpdateSerializer(serializers.ModelSerializer):
     """Serializer for creating/updating exam marks"""
     
     class Meta:
         model = ExamMark
         fields = [
-            'exam_name', 'student', 'subject', 'session',
+            'exam_type', 'exam_date', 'student', 'subject', 'session',
             'cq_marks', 'mct_marks', 'lab_marks',
-            'total_class', 'present', 'absent'
+            'total_class', 'present', 'absent', 'remarks'
         ]
     
     def validate(self, data):
@@ -134,7 +117,8 @@ class ExamMarkCreateUpdateSerializer(serializers.ModelSerializer):
             )
         
         # Check for duplicate entry
-        exam_name = data.get('exam_name')
+        exam_type = data.get('exam_type')
+        exam_date = data.get('exam_date')
         student = data.get('student')
         subject = data.get('subject')
         session = data.get('session')
@@ -142,13 +126,14 @@ class ExamMarkCreateUpdateSerializer(serializers.ModelSerializer):
         # Skip this check on update
         if self.instance is None:
             if ExamMark.objects.filter(
-                exam_name=exam_name,
+                exam_type=exam_type,
+                exam_date=exam_date,
                 student=student,
                 subject=subject,
                 session=session
             ).exists():
                 raise serializers.ValidationError(
-                    "Marks already exist for this student-subject-exam combination"
+                    "Marks already exist for this student-subject-exam combination on this date"
                 )
         
         return data

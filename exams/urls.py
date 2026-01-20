@@ -6,7 +6,5 @@ router = DefaultRouter()
 router.register(r'marks', views.ExamMarkViewSet, basename='exammark')
 
 urlpatterns = [
-    path('list/', views.ExamListView.as_view(), name='exam_list'),
-    path('marks-legacy/', views.MarkListView.as_view(), name='mark_list'),
     path('', include(router.urls)),
 ]

@@ -4,9 +4,8 @@ from academics.models import Session, Class, Subject
 class Student(models.Model):
     GROUP_CHOICES = [
         ('science', 'Science'),
-        ('business', 'Business'),
+        ('business', 'Business Studies'),
         ('humanities', 'Humanities'),
-        ('religion', 'Religion'),
     ]
     
     name = models.CharField(max_length=100)

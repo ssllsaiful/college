@@ -11,7 +11,7 @@ class StudentAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at', 'updated_at', 'get_all_subjects_display')
     fieldsets = (
         ('Basic Info', {
-            'fields': ('name', 'roll_number', 'email', 'phone')
+            'fields': ('name', 'roll_number', 'email')
         }),
         ('Academic Info', {
             'fields': ('class_name', 'session', 'group', 'subjects', 'get_all_subjects_display')

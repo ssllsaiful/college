@@ -12,7 +12,7 @@ class StudentListSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Student
-        fields = ['id', 'name', 'roll_number', 'class_name', 'session', 'group', 'email', 'phone', 'subjects', 'subjects_display', 'subject_count']
+        fields = ['id', 'name', 'roll_number', 'class_name', 'session', 'group', 'email', 'subjects', 'subjects_display', 'subject_count']
     
     def get_subjects_display(self, obj):
         """Return subjects with || separator"""
@@ -33,7 +33,7 @@ class StudentDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = Student
-        fields = ['id', 'name', 'roll_number', 'class_name', 'session', 'group', 'email', 'phone', 'address', 'date_of_birth', 'subjects', 'subjects_display', 'created_at']
+        fields = ['id', 'name', 'roll_number', 'class_name', 'session', 'group', 'email', 'address', 'date_of_birth', 'subjects', 'subjects_display', 'created_at']
     
     def get_subjects_display(self, obj):
         """Return subjects with || separator"""

@@ -25,10 +25,9 @@ class Class(models.Model):
 
 class Subject(models.Model):
     GROUP_CHOICES = [
-        ('science', 'Science Group (বিজ্ঞান বিভাগ)'),
-        ('business', 'Business Studies Group (ব্যবসায় শিক্ষা বিভাগ)'),
-        ('humanities', 'Humanities Group (মানবিক বিভাগ)'),
-        ('religion', 'Religion (ধর্ম)'),
+        ('science', 'Science'),
+        ('business', 'Business Studies'),
+        ('humanities', 'Humanities'),
     ]
     
     CATEGORY_CHOICES = [
